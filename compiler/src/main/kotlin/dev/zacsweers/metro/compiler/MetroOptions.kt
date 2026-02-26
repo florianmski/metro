@@ -28,6 +28,8 @@ internal const val DEFAULT_STATEMENTS_PER_INIT_FUN = 25
 // https://github.com/google/dagger/blob/master/dagger-compiler/main/java/dagger/internal/codegen/compileroption/CompilerOptions.java#L142
 internal const val DEFAULT_KEYS_PER_GRAPH_SHARD = 2000
 
+internal const val DEFAULT_STATEMENTS_PER_MULTIBIND_FUN = 200
+
 internal data class RawMetroOption<T : Any>(
   val name: String,
   val defaultValue: T,
@@ -236,6 +238,18 @@ internal enum class MetroOption(val raw: RawMetroOption<*>) {
       valueDescription = "<count>",
       description =
         "Maximum number of binding keys per graph shard when sharding is enabled. Default is $DEFAULT_KEYS_PER_GRAPH_SHARD, must be > 0.",
+      required = false,
+      allowMultipleOccurrences = false,
+      valueMapper = { it.toInt() },
+    )
+  ),
+  STATEMENTS_PER_MULTIBIND_FUN(
+    RawMetroOption(
+      name = "statements-per-multibind-fun",
+      defaultValue = DEFAULT_STATEMENTS_PER_MULTIBIND_FUN,
+      valueDescription = "<count>",
+      description =
+        "Maximum number of statements per multibinding helper method. Multibindings with more contributors than this threshold will have their builder calls split across multiple private helper methods. Default is $DEFAULT_STATEMENTS_PER_MULTIBIND_FUN, must be > 0.",
       required = false,
       allowMultipleOccurrences = false,
       valueMapper = { it.toInt() },
@@ -918,6 +932,8 @@ public data class MetroOptions(
   public val enableGraphSharding: Boolean =
     MetroOption.ENABLE_GRAPH_SHARDING.raw.defaultValue.expectAs(),
   public val keysPerGraphShard: Int = MetroOption.KEYS_PER_GRAPH_SHARD.raw.defaultValue.expectAs(),
+  public val statementsPerMultibindFun: Int =
+    MetroOption.STATEMENTS_PER_MULTIBIND_FUN.raw.defaultValue.expectAs(),
   public val enableSwitchingProviders: Boolean =
     MetroOption.ENABLE_SWITCHING_PROVIDERS.raw.defaultValue.expectAs(),
   public val publicScopedProviderSeverity: DiagnosticSeverity =
@@ -1098,6 +1114,7 @@ public data class MetroOptions(
     public var statementsPerInitFun: Int = base.statementsPerInitFun
     public var enableGraphSharding: Boolean = base.enableGraphSharding
     public var keysPerGraphShard: Int = base.keysPerGraphShard
+    public var statementsPerMultibindFun: Int = base.statementsPerMultibindFun
     public var enableFastInit: Boolean = base.enableSwitchingProviders
     public var publicScopedProviderSeverity: DiagnosticSeverity = base.publicScopedProviderSeverity
     public var nonPublicContributionSeverity: DiagnosticSeverity =
@@ -1305,6 +1322,7 @@ public data class MetroOptions(
         statementsPerInitFun = statementsPerInitFun,
         enableGraphSharding = enableGraphSharding,
         keysPerGraphShard = keysPerGraphShard,
+        statementsPerMultibindFun = statementsPerMultibindFun,
         enableSwitchingProviders = enableFastInit,
         publicScopedProviderSeverity = publicScopedProviderSeverity,
         nonPublicContributionSeverity = nonPublicContributionSeverity,
@@ -1454,6 +1472,8 @@ public data class MetroOptions(
           ENABLE_GRAPH_SHARDING -> enableGraphSharding = configuration.getAsBoolean(entry)
 
           KEYS_PER_GRAPH_SHARD -> keysPerGraphShard = configuration.getAsInt(entry)
+
+          STATEMENTS_PER_MULTIBIND_FUN -> statementsPerMultibindFun = configuration.getAsInt(entry)
 
           ENABLE_SWITCHING_PROVIDERS -> enableFastInit = configuration.getAsBoolean(entry)
 

@@ -203,6 +203,14 @@ constructor(
   public val keysPerGraphShard: Property<Int> = objects.intProperty("metro.keysPerGraphShard", 2000)
 
   /**
+   * Maximum number of statements per multibinding helper method. Multibindings with more
+   * contributors than this threshold will have their builder calls split across multiple private
+   * helper methods. Default is 200, must be > 0.
+   */
+  public val statementsPerMultibindFun: Property<Int> =
+    objects.intProperty("metro.statementsPerMultibindFun", 200)
+
+  /**
    * Enables switching providers for deferred class loading. This reduces graph initialization time
    * by deferring bindings' class init until it's actually requested.
    *

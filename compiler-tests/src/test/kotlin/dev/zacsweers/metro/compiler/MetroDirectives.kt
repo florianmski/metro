@@ -41,6 +41,12 @@ object MetroDirectives : SimpleDirectivesContainer() {
     valueDirective("Maximum number of binding keys per graph shard when sharding is enabled.") {
       it.toInt()
     }
+  val STATEMENTS_PER_MULTIBIND_FUN by
+    valueDirective(
+      "Maximum number of statements per multibinding helper method when chunking is enabled."
+    ) {
+      it.toInt()
+    }
   val ENABLE_SWITCHING_PROVIDERS by
     valueDirective("Enable SwitchingProviders for deferred class loading.") { it.toBoolean() }
   val ENABLE_FULL_BINDING_GRAPH_VALIDATION by
