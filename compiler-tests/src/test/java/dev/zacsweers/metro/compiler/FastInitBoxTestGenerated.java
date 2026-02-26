@@ -1414,6 +1414,36 @@ public class FastInitBoxTestGenerated extends AbstractFastInitBoxTest {
       }
 
       @Test
+      @TestMetadata("ChunkedMapFactoryMultibinding.kt")
+      public void testChunkedMapFactoryMultibinding() {
+        runTest("compiler-tests/src/test/data/box/dependencygraph/sharding/ChunkedMapFactoryMultibinding.kt");
+      }
+
+      @Test
+      @TestMetadata("ChunkedMapMultibinding.kt")
+      public void testChunkedMapMultibinding() {
+        runTest("compiler-tests/src/test/data/box/dependencygraph/sharding/ChunkedMapMultibinding.kt");
+      }
+
+      @Test
+      @TestMetadata("ChunkedMultibindingWithSharding.kt")
+      public void testChunkedMultibindingWithSharding() {
+        runTest("compiler-tests/src/test/data/box/dependencygraph/sharding/ChunkedMultibindingWithSharding.kt");
+      }
+
+      @Test
+      @TestMetadata("ChunkedSetFactoryMultibinding.kt")
+      public void testChunkedSetFactoryMultibinding() {
+        runTest("compiler-tests/src/test/data/box/dependencygraph/sharding/ChunkedSetFactoryMultibinding.kt");
+      }
+
+      @Test
+      @TestMetadata("ChunkedSetMultibinding.kt")
+      public void testChunkedSetMultibinding() {
+        runTest("compiler-tests/src/test/data/box/dependencygraph/sharding/ChunkedSetMultibinding.kt");
+      }
+
+      @Test
       @TestMetadata("CrossShardDependencies.kt")
       public void testCrossShardDependencies() {
         runTest("compiler-tests/src/test/data/box/dependencygraph/sharding/CrossShardDependencies.kt");

@@ -290,6 +290,24 @@ public class IrDumpTestGenerated extends AbstractIrDumpTest {
       }
 
       @Test
+      @TestMetadata("ChunkedMapMultibinding.kt")
+      public void testChunkedMapMultibinding() {
+        runTest("compiler-tests/src/test/data/dump/ir/dependencygraph/sharding/ChunkedMapMultibinding.kt");
+      }
+
+      @Test
+      @TestMetadata("ChunkedMultibindingWithSharding.kt")
+      public void testChunkedMultibindingWithSharding() {
+        runTest("compiler-tests/src/test/data/dump/ir/dependencygraph/sharding/ChunkedMultibindingWithSharding.kt");
+      }
+
+      @Test
+      @TestMetadata("ChunkedSetMultibinding.kt")
+      public void testChunkedSetMultibinding() {
+        runTest("compiler-tests/src/test/data/dump/ir/dependencygraph/sharding/ChunkedSetMultibinding.kt");
+      }
+
+      @Test
       @TestMetadata("CrossShardDependencies.kt")
       public void testCrossShardDependencies() {
         runTest("compiler-tests/src/test/data/dump/ir/dependencygraph/sharding/CrossShardDependencies.kt");
