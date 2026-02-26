@@ -102,6 +102,9 @@ private constructor(
     }
   }
 
+  /** Optional context for generating chunked multibinding helper methods. */
+  var multibindingChunkingContext: MultibindingChunkingContext? = null
+
   private val wrappedTypeGenerators = listOf(IrOptionalExpressionGenerator).associateBy { it.key }
   private val multibindingExpressionGenerator by memoize { MultibindingExpressionGenerator(this) }
 
