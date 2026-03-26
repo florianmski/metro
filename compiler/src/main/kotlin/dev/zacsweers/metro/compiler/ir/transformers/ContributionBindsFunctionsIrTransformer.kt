@@ -5,18 +5,21 @@ package dev.zacsweers.metro.compiler.ir.transformers
 import dev.zacsweers.metro.compiler.NameAllocator
 import dev.zacsweers.metro.compiler.Origins
 import dev.zacsweers.metro.compiler.asName
+import dev.zacsweers.metro.compiler.ir.IrBoundTypeResolver
 import dev.zacsweers.metro.compiler.ir.IrContributionData
 import dev.zacsweers.metro.compiler.ir.IrMetroContext
 import dev.zacsweers.metro.compiler.ir.allSupertypesSequence
 import dev.zacsweers.metro.compiler.ir.annotationClass
 import dev.zacsweers.metro.compiler.ir.annotationsIn
-import dev.zacsweers.metro.compiler.ir.bindingTypeOrNull
 import dev.zacsweers.metro.compiler.ir.buildAnnotation
 import dev.zacsweers.metro.compiler.ir.findAnnotations
 import dev.zacsweers.metro.compiler.ir.isAnnotatedWithAny
 import dev.zacsweers.metro.compiler.ir.isBindingContainer
 import dev.zacsweers.metro.compiler.ir.isExternalParent
+import dev.zacsweers.metro.compiler.ir.isImplicitClassKeySentinel
+import dev.zacsweers.metro.compiler.ir.isKiaIntoMultibinding
 import dev.zacsweers.metro.compiler.ir.mapKeyAnnotation
+import dev.zacsweers.metro.compiler.ir.populateImplicitClassKey
 import dev.zacsweers.metro.compiler.ir.qualifierAnnotation
 import dev.zacsweers.metro.compiler.ir.rawType
 import dev.zacsweers.metro.compiler.ir.rawTypeOrNull
@@ -29,6 +32,7 @@ import dev.zacsweers.metro.compiler.reserveName
 import dev.zacsweers.metro.compiler.symbols.Symbols
 import dev.zacsweers.metro.compiler.tracing.TraceScope
 import dev.zacsweers.metro.compiler.tracing.trace
+import java.util.Objects
 import org.jetbrains.kotlin.descriptors.Modality
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.declarations.addFunction
@@ -59,6 +63,7 @@ import org.jetbrains.kotlin.name.ClassId
 internal class ContributionTransformer(
   private val context: IrMetroContext,
   traceScope: TraceScope,
+  private val boundTypeResolver: IrBoundTypeResolver,
 ) : IrTransformer<IrContributionData>(), IrMetroContext by context, TraceScope by traceScope {
 
   private val transformedContributions = mutableSetOf<ClassId>()
@@ -150,7 +155,8 @@ internal class ContributionTransformer(
         for (contribution in contributions) {
           if (contribution !is Contribution.BindingContribution) continue
           with(contribution) {
-            bindsFunctions += declaration.generateBindingFunction(metroContext, nameAllocator)
+            bindsFunctions +=
+              declaration.generateBindingFunction(metroContext, nameAllocator, boundTypeResolver)
           }
         }
       }
@@ -200,20 +206,39 @@ internal class ContributionTransformer(
       fun IrClass.generateBindingFunction(
         metroContext: IrMetroContext,
         nameAllocator: NameAllocator,
+        boundTypeResolver: IrBoundTypeResolver,
       ): IrSimpleFunction =
         with(metroContext) {
-          val (explicitBindingType, ignoreQualifier) = annotation.bindingTypeOrNull()
-          val bindingType =
-            explicitBindingType ?: annotatedType.superTypes.single() // Checked in FIR
+          val result =
+            boundTypeResolver.resolveBoundType(annotatedType, annotation)
+              ?: error(
+                "Could not resolve bound type for ${annotatedType.classIdOrFail}. This should have been caught in FIR."
+              )
+          val bindingType = result.type
+          val explicitBindingType = result.explicitBindingType
 
           val qualifier =
-            if (!ignoreQualifier) {
+            if (!result.ignoreQualifier) {
               explicitBindingType?.qualifierAnnotation() ?: annotatedType.qualifierAnnotation()
             } else {
               null
             }
 
           val mapKey = explicitBindingType?.mapKeyAnnotation() ?: annotatedType.mapKeyAnnotation()
+
+          // For map key hashing, use the effective key value. For implicit class keys
+          // (sentinel Nothing::class), incorporate the annotated type's class ID instead
+          // so that different classes get unique function names.
+          val mapKeyHash =
+            if (
+              mapKey != null &&
+                this@BindingContribution is ContributesIntoMapBinding &&
+                isImplicitClassKeySentinel(mapKey.ir)
+            ) {
+              Objects.hash(mapKey.hashCode(), annotatedType.classId).toUInt()
+            } else {
+              mapKey?.hashCode()?.toUInt()
+            }
 
           val suffix = buildString {
             append("As")
@@ -227,7 +252,7 @@ internal class ContributionTransformer(
               .shortClassName
               .let(::append)
             qualifier?.hashCode()?.toUInt()?.let(::append)
-            mapKey?.hashCode()?.toUInt()?.let(::append)
+            mapKeyHash?.let(::append)
           }
 
           // We need a unique name because addFakeOverrides() doesn't handle overloads with
@@ -247,9 +272,15 @@ internal class ContributionTransformer(
               }
               qualifier?.let { annotations += it.ir.deepCopyWithSymbols() }
               if (this@BindingContribution is ContributesIntoMapBinding) {
-                mapKey?.let { annotations += it.ir.deepCopyWithSymbols() }
+                mapKey?.let { mk ->
+                  val copied = mk.ir.deepCopyWithSymbols()
+                  if (isImplicitClassKeySentinel(copied)) {
+                    populateImplicitClassKey(copied, annotatedType.defaultType)
+                  }
+                  annotations += copied
+                }
               }
-              pluginContext.metadataDeclarationRegistrar.registerFunctionAsMetadataVisible(this)
+              metadataDeclarationRegistrarCompat.registerFunctionAsMetadataVisible(this)
             }
         }
     }
@@ -315,8 +346,14 @@ internal class ContributionTransformer(
         }
         in contributesBindingAnnotations -> {
           contributions +=
-            Contribution.ContributesBinding(contributingSymbol, annotation) {
-              listOf(buildBindsAnnotation())
+            if (annotation.isKiaIntoMultibinding()) {
+              Contribution.ContributesIntoSetBinding(contributingSymbol, annotation) {
+                listOf(buildIntoSetAnnotation(), buildBindsAnnotation())
+              }
+            } else {
+              Contribution.ContributesBinding(contributingSymbol, annotation) {
+                listOf(buildBindsAnnotation())
+              }
             }
         }
         in contributesIntoSetAnnotations -> {

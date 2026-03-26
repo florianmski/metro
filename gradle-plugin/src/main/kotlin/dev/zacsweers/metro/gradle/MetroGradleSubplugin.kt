@@ -331,6 +331,7 @@ public class MetroGradleSubplugin @Inject constructor(problems: Problems) :
           add(lazyOption("statements-per-init-fun", extension.statementsPerInitFun))
           add(lazyOption("enable-graph-sharding", extension.enableGraphSharding))
           add(lazyOption("keys-per-graph-shard", extension.keysPerGraphShard))
+          add(lazyOption("statements-per-multibind-fun", extension.statementsPerMultibindFun))
           add(lazyOption("enable-switching-providers", extension.enableSwitchingProviders))
           add(lazyOption("optional-binding-behavior", extension.optionalBindingBehavior))
           add(lazyOption("public-scoped-provider-severity", extension.publicScopedProviderSeverity))
@@ -376,7 +377,6 @@ public class MetroGradleSubplugin @Inject constructor(problems: Problems) :
               extension.useAssistedParamNamesAsIdentifiers,
             )
           )
-          add(lazyOption("assisted-identifier-severity", extension.assistedIdentifierSeverity))
           add(lazyOption("parallel-threads", extension.parallelThreads))
           add(lazyOption("enable-function-providers", extension.enableFunctionProviders))
           // Track whether we ordered the plugin before compose-compiler
@@ -400,6 +400,12 @@ public class MetroGradleSubplugin @Inject constructor(problems: Problems) :
               SubpluginOption(
                 "enable-dagger-runtime-interop",
                 extension.interop.enableDaggerRuntimeInterop.getOrElse(false).toString(),
+              )
+            )
+            add(
+              lazyOption(
+                "enable-kclass-to-class-interop",
+                extension.enableKClassToClassMapKeyInterop,
               )
             )
           }

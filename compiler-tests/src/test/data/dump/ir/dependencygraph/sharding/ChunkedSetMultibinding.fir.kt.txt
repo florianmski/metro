@@ -1,0 +1,285 @@
+@DependencyGraph
+interface TestGraph {
+  @Deprecated(message = "This synthesized declaration should not be used directly", level = DeprecationLevel.HIDDEN)
+  @MetroImplMarker
+  class Impl : TestGraph {
+    private val thisGraphInstance: TestGraph
+      field = <this>
+
+    private constructor() /* primary */ {
+      super/*Any*/()
+      /* <init>() */
+
+    }
+
+    private fun contributeSetBindings(set: MutableSet<String>) {
+      set.add(element = <this>.#thisGraphInstance.provideE())
+      set.add(element = <this>.#thisGraphInstance.provideD())
+    }
+
+    private fun contributeSetBindings2(set: MutableSet<String>) {
+      set.add(element = <this>.#thisGraphInstance.provideC())
+      set.add(element = <this>.#thisGraphInstance.provideB())
+    }
+
+    private fun contributeSetBindings3(set: MutableSet<String>) {
+      set.add(element = <this>.#thisGraphInstance.provideA())
+    }
+
+    override val elements: Set<String>
+      override get(): Set<String> {
+        return <this>.<get-setOfString>()
+      }
+
+    private val setOfString: Set<String>
+      private get(): Set<String> {
+        return { // BLOCK
+          buildSet<String>(capacity = 5, builderAction = local fun MutableSet<String>.<anonymous>() {
+            <this>.contributeSetBindings(set = $receiver)
+            <this>.contributeSetBindings2(set = $receiver)
+            <this>.contributeSetBindings3(set = $receiver)
+          }
+)
+        }
+      }
+
+  }
+
+  companion object Companion {
+    private constructor() /* primary */ {
+      super/*Any*/()
+      /* <init>() */
+
+    }
+
+    @GraphFactoryInvokeFunctionMarker
+    operator fun invoke(): TestGraph {
+      return Impl()
+    }
+
+  }
+
+  @Deprecated(message = "This synthesized declaration should not be used directly", level = DeprecationLevel.HIDDEN)
+  @CallableMetadata(callableName = "provideA", propertyName = "", startOffset = 488, endOffset = 535, newInstanceName = "provideA")
+  class ProvideAMetroFactory : Factory<String> {
+    private /* final field */ val instance: TestGraph = instance
+    companion object Companion {
+      private constructor() /* primary */ {
+        super/*Any*/()
+        /* <init>() */
+
+      }
+
+      fun create(instance: TestGraph): Factory<String> {
+        return ProvideAMetroFactory(instance = instance)
+      }
+
+      fun provideA(instance: TestGraph): String {
+        return instance.provideA()
+      }
+
+    }
+
+    private constructor(instance: TestGraph) /* primary */ {
+      super/*Any*/()
+      /* <init>() */
+
+    }
+
+    override operator fun invoke(): String {
+      return Companion.provideA(instance = <this>.#instance)
+    }
+
+    @IntoSet
+    fun mirrorFunction(): String {
+      return error(message = "Never called")
+    }
+
+  }
+
+  @Deprecated(message = "This synthesized declaration should not be used directly", level = DeprecationLevel.HIDDEN)
+  @CallableMetadata(callableName = "provideB", propertyName = "", startOffset = 538, endOffset = 585, newInstanceName = "provideB")
+  class ProvideBMetroFactory : Factory<String> {
+    private /* final field */ val instance: TestGraph = instance
+    companion object Companion {
+      private constructor() /* primary */ {
+        super/*Any*/()
+        /* <init>() */
+
+      }
+
+      fun create(instance: TestGraph): Factory<String> {
+        return ProvideBMetroFactory(instance = instance)
+      }
+
+      fun provideB(instance: TestGraph): String {
+        return instance.provideB()
+      }
+
+    }
+
+    private constructor(instance: TestGraph) /* primary */ {
+      super/*Any*/()
+      /* <init>() */
+
+    }
+
+    override operator fun invoke(): String {
+      return Companion.provideB(instance = <this>.#instance)
+    }
+
+    @IntoSet
+    fun mirrorFunction(): String {
+      return error(message = "Never called")
+    }
+
+  }
+
+  @Deprecated(message = "This synthesized declaration should not be used directly", level = DeprecationLevel.HIDDEN)
+  @CallableMetadata(callableName = "provideC", propertyName = "", startOffset = 588, endOffset = 635, newInstanceName = "provideC")
+  class ProvideCMetroFactory : Factory<String> {
+    private /* final field */ val instance: TestGraph = instance
+    companion object Companion {
+      private constructor() /* primary */ {
+        super/*Any*/()
+        /* <init>() */
+
+      }
+
+      fun create(instance: TestGraph): Factory<String> {
+        return ProvideCMetroFactory(instance = instance)
+      }
+
+      fun provideC(instance: TestGraph): String {
+        return instance.provideC()
+      }
+
+    }
+
+    private constructor(instance: TestGraph) /* primary */ {
+      super/*Any*/()
+      /* <init>() */
+
+    }
+
+    override operator fun invoke(): String {
+      return Companion.provideC(instance = <this>.#instance)
+    }
+
+    @IntoSet
+    fun mirrorFunction(): String {
+      return error(message = "Never called")
+    }
+
+  }
+
+  @Deprecated(message = "This synthesized declaration should not be used directly", level = DeprecationLevel.HIDDEN)
+  @CallableMetadata(callableName = "provideD", propertyName = "", startOffset = 638, endOffset = 685, newInstanceName = "provideD")
+  class ProvideDMetroFactory : Factory<String> {
+    private /* final field */ val instance: TestGraph = instance
+    companion object Companion {
+      private constructor() /* primary */ {
+        super/*Any*/()
+        /* <init>() */
+
+      }
+
+      fun create(instance: TestGraph): Factory<String> {
+        return ProvideDMetroFactory(instance = instance)
+      }
+
+      fun provideD(instance: TestGraph): String {
+        return instance.provideD()
+      }
+
+    }
+
+    private constructor(instance: TestGraph) /* primary */ {
+      super/*Any*/()
+      /* <init>() */
+
+    }
+
+    override operator fun invoke(): String {
+      return Companion.provideD(instance = <this>.#instance)
+    }
+
+    @IntoSet
+    fun mirrorFunction(): String {
+      return error(message = "Never called")
+    }
+
+  }
+
+  @Deprecated(message = "This synthesized declaration should not be used directly", level = DeprecationLevel.HIDDEN)
+  @CallableMetadata(callableName = "provideE", propertyName = "", startOffset = 688, endOffset = 735, newInstanceName = "provideE")
+  class ProvideEMetroFactory : Factory<String> {
+    private /* final field */ val instance: TestGraph = instance
+    companion object Companion {
+      private constructor() /* primary */ {
+        super/*Any*/()
+        /* <init>() */
+
+      }
+
+      fun create(instance: TestGraph): Factory<String> {
+        return ProvideEMetroFactory(instance = instance)
+      }
+
+      fun provideE(instance: TestGraph): String {
+        return instance.provideE()
+      }
+
+    }
+
+    private constructor(instance: TestGraph) /* primary */ {
+      super/*Any*/()
+      /* <init>() */
+
+    }
+
+    override operator fun invoke(): String {
+      return Companion.provideE(instance = <this>.#instance)
+    }
+
+    @IntoSet
+    fun mirrorFunction(): String {
+      return error(message = "Never called")
+    }
+
+  }
+
+  @Provides
+  @IntoSet
+  fun provideA(): String {
+    return "a"
+  }
+
+  @Provides
+  @IntoSet
+  fun provideB(): String {
+    return "b"
+  }
+
+  @Provides
+  @IntoSet
+  fun provideC(): String {
+    return "c"
+  }
+
+  @Provides
+  @IntoSet
+  fun provideD(): String {
+    return "d"
+  }
+
+  @Provides
+  @IntoSet
+  fun provideE(): String {
+    return "e"
+  }
+
+  abstract val elements: Set<String>
+    abstract get
+
+}

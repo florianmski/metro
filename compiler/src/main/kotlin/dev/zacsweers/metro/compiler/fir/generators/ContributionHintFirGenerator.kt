@@ -6,11 +6,11 @@ import dev.zacsweers.metro.compiler.api.fir.MetroFirDeclarationGenerationExtensi
 import dev.zacsweers.metro.compiler.compat.CompatContext
 import dev.zacsweers.metro.compiler.fir.Keys
 import dev.zacsweers.metro.compiler.fir.MetroFirTypeResolver
+import dev.zacsweers.metro.compiler.fir.allSessions
 import dev.zacsweers.metro.compiler.fir.annotationsIn
 import dev.zacsweers.metro.compiler.fir.classIds
 import dev.zacsweers.metro.compiler.fir.constructType
 import dev.zacsweers.metro.compiler.fir.markAsDeprecatedHidden
-import dev.zacsweers.metro.compiler.fir.memoizedAllSessionsSequence
 import dev.zacsweers.metro.compiler.fir.predicates
 import dev.zacsweers.metro.compiler.fir.resolvedArgumentTypeRef
 import dev.zacsweers.metro.compiler.fir.scopeArgument
@@ -58,7 +58,7 @@ internal class ContributionHintFirGenerator(
     return (injectedClasses + contributedClasses).filterIsInstance<FirClassSymbol<*>>()
   }
 
-  private val allSessions = session.memoizedAllSessionsSequence
+  private val allSessions = session.allSessions
   private val typeResolverFactory = MetroFirTypeResolver.Factory(session, allSessions)
 
   private val contributedClassesByScope:
@@ -77,13 +77,12 @@ internal class ContributionHintFirGenerator(
 
         val typeResolver = typeResolverFactory.create(contributingClass) ?: continue
 
-        val contributionScopes: Set<ClassId> =
-          contributions.mapNotNullToSet { annotation ->
-            annotation.scopeArgument()?.let { getClassCall ->
-              val reference = getClassCall.resolvedArgumentTypeRef() ?: return@let null
-              typeResolver.resolveType(typeRef = reference).classId ?: return@let null
-            }
+        val contributionScopes: Set<ClassId> = contributions.mapNotNullToSet { annotation ->
+          annotation.scopeArgument(session)?.let { getClassCall ->
+            val reference = getClassCall.resolvedArgumentTypeRef() ?: return@let null
+            typeResolver.resolveType(typeRef = reference).classId ?: return@let null
           }
+        }
         for (contributionScope in contributionScopes) {
           val hintName = contributionScope.scopeHintFunctionName()
           callableIds.getAndAdd(

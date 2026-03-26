@@ -103,6 +103,36 @@ public class BoxTestGenerated extends AbstractBoxTest {
     }
 
     @Test
+    @TestMetadata("DefaultBinding_Basic.kt")
+    public void testDefaultBinding_Basic() {
+      runTest("compiler-tests/src/test/data/box/aggregation/DefaultBinding_Basic.kt");
+    }
+
+    @Test
+    @TestMetadata("DefaultBinding_ExplicitOverride.kt")
+    public void testDefaultBinding_ExplicitOverride() {
+      runTest("compiler-tests/src/test/data/box/aggregation/DefaultBinding_ExplicitOverride.kt");
+    }
+
+    @Test
+    @TestMetadata("DefaultBinding_IntoSet.kt")
+    public void testDefaultBinding_IntoSet() {
+      runTest("compiler-tests/src/test/data/box/aggregation/DefaultBinding_IntoSet.kt");
+    }
+
+    @Test
+    @TestMetadata("DefaultBinding_NearestSupertypeWins.kt")
+    public void testDefaultBinding_NearestSupertypeWins() {
+      runTest("compiler-tests/src/test/data/box/aggregation/DefaultBinding_NearestSupertypeWins.kt");
+    }
+
+    @Test
+    @TestMetadata("DefaultBinding_WithGenericType.kt")
+    public void testDefaultBinding_WithGenericType() {
+      runTest("compiler-tests/src/test/data/box/aggregation/DefaultBinding_WithGenericType.kt");
+    }
+
+    @Test
     @TestMetadata("ExcludeBindingContainerWithOrigin.kt")
     public void testExcludeBindingContainerWithOrigin() {
       runTest("compiler-tests/src/test/data/box/aggregation/ExcludeBindingContainerWithOrigin.kt");
@@ -112,6 +142,12 @@ public class BoxTestGenerated extends AbstractBoxTest {
     @TestMetadata("ExcludeBindingContainerWithOriginInExtension.kt")
     public void testExcludeBindingContainerWithOriginInExtension() {
       runTest("compiler-tests/src/test/data/box/aggregation/ExcludeBindingContainerWithOriginInExtension.kt");
+    }
+
+    @Test
+    @TestMetadata("ExcludeContributedGraphExtension.kt")
+    public void testExcludeContributedGraphExtension() {
+      runTest("compiler-tests/src/test/data/box/aggregation/ExcludeContributedGraphExtension.kt");
     }
 
     @Test
@@ -193,6 +229,12 @@ public class BoxTestGenerated extends AbstractBoxTest {
     }
 
     @Test
+    @TestMetadata("ReplacementsWithOriginInContributedGraphExtensionSet.kt")
+    public void testReplacementsWithOriginInContributedGraphExtensionSet() {
+      runTest("compiler-tests/src/test/data/box/aggregation/ReplacementsWithOriginInContributedGraphExtensionSet.kt");
+    }
+
+    @Test
     @TestMetadata("ReplacementsWithOriginInExtension.kt")
     public void testReplacementsWithOriginInExtension() {
       runTest("compiler-tests/src/test/data/box/aggregation/ReplacementsWithOriginInExtension.kt");
@@ -232,6 +274,12 @@ public class BoxTestGenerated extends AbstractBoxTest {
       }
 
       @Test
+      @TestMetadata("ContributedGraphExtensionGetsExcluded.kt")
+      public void testContributedGraphExtensionGetsExcluded() {
+        runTest("compiler-tests/src/test/data/box/aggregation/interop/ContributedGraphExtensionGetsExcluded.kt");
+      }
+
+      @Test
       @TestMetadata("ContributedGraphsSupportIgnoreQualifier.kt")
       public void testContributedGraphsSupportIgnoreQualifier() {
         runTest("compiler-tests/src/test/data/box/aggregation/interop/ContributedGraphsSupportIgnoreQualifier.kt");
@@ -241,6 +289,24 @@ public class BoxTestGenerated extends AbstractBoxTest {
       @TestMetadata("ContributedGraphsSupportRankings.kt")
       public void testContributedGraphsSupportRankings() {
         runTest("compiler-tests/src/test/data/box/aggregation/interop/ContributedGraphsSupportRankings.kt");
+      }
+
+      @Test
+      @TestMetadata("ContributesBindingMixedRegularAndMultibinding.kt")
+      public void testContributesBindingMixedRegularAndMultibinding() {
+        runTest("compiler-tests/src/test/data/box/aggregation/interop/ContributesBindingMixedRegularAndMultibinding.kt");
+      }
+
+      @Test
+      @TestMetadata("ContributesBindingMultibindingInterop.kt")
+      public void testContributesBindingMultibindingInterop() {
+        runTest("compiler-tests/src/test/data/box/aggregation/interop/ContributesBindingMultibindingInterop.kt");
+      }
+
+      @Test
+      @TestMetadata("ContributesBindingMultibindingWithExplicitBoundType.kt")
+      public void testContributesBindingMultibindingWithExplicitBoundType() {
+        runTest("compiler-tests/src/test/data/box/aggregation/interop/ContributesBindingMultibindingWithExplicitBoundType.kt");
       }
 
       @Test
@@ -391,6 +457,12 @@ public class BoxTestGenerated extends AbstractBoxTest {
     }
 
     @Test
+    @TestMetadata("ProvidersReturningANestedTypeInSameClass.kt")
+    public void testProvidersReturningANestedTypeInSameClass() {
+      runTest("compiler-tests/src/test/data/box/bindingcontainers/ProvidersReturningANestedTypeInSameClass.kt");
+    }
+
+    @Test
     @TestMetadata("SimpleContainersWithHintsWork.kt")
     public void testSimpleContainersWithHintsWork() {
       runTest("compiler-tests/src/test/data/box/bindingcontainers/SimpleContainersWithHintsWork.kt");
@@ -446,6 +518,12 @@ public class BoxTestGenerated extends AbstractBoxTest {
     @TestMetadata("ContributesIntoMapFromMultipleSources.kt")
     public void testContributesIntoMapFromMultipleSources() {
       runTest("compiler-tests/src/test/data/box/contributesgraphextension/ContributesIntoMapFromMultipleSources.kt");
+    }
+
+    @Test
+    @TestMetadata("ContributesSingletonGraphIntoGraphExtension.kt")
+    public void testContributesSingletonGraphIntoGraphExtension() {
+      runTest("compiler-tests/src/test/data/box/contributesgraphextension/ContributesSingletonGraphIntoGraphExtension.kt");
     }
 
     @Test
@@ -878,6 +956,12 @@ public class BoxTestGenerated extends AbstractBoxTest {
       }
 
       @Test
+      @TestMetadata("DynamicGraphCanReplaceScopedBindings.kt")
+      public void testDynamicGraphCanReplaceScopedBindings() {
+        runTest("compiler-tests/src/test/data/box/dependencygraph/dynamic/DynamicGraphCanReplaceScopedBindings.kt");
+      }
+
+      @Test
       @TestMetadata("DynamicGraphReplacesExtensionBindingFromClass.kt")
       public void testDynamicGraphReplacesExtensionBindingFromClass() {
         runTest("compiler-tests/src/test/data/box/dependencygraph/dynamic/DynamicGraphReplacesExtensionBindingFromClass.kt");
@@ -923,6 +1007,12 @@ public class BoxTestGenerated extends AbstractBoxTest {
       @TestMetadata("MultiModuleDynamicGraph.kt")
       public void testMultiModuleDynamicGraph() {
         runTest("compiler-tests/src/test/data/box/dependencygraph/dynamic/MultiModuleDynamicGraph.kt");
+      }
+
+      @Test
+      @TestMetadata("MultibindsDoNotReportAsDupes.kt")
+      public void testMultibindsDoNotReportAsDupes() {
+        runTest("compiler-tests/src/test/data/box/dependencygraph/dynamic/MultibindsDoNotReportAsDupes.kt");
       }
 
       @Test
@@ -981,6 +1071,12 @@ public class BoxTestGenerated extends AbstractBoxTest {
       @TestMetadata("ChildProvidesSupersedeSameTypedParentProvides.kt")
       public void testChildProvidesSupersedeSameTypedParentProvides() {
         runTest("compiler-tests/src/test/data/box/dependencygraph/extensions/ChildProvidesSupersedeSameTypedParentProvides.kt");
+      }
+
+      @Test
+      @TestMetadata("ChildProvidesSupersedeScopeSameTypedParentProvidesInMultibinding.kt")
+      public void testChildProvidesSupersedeScopeSameTypedParentProvidesInMultibinding() {
+        runTest("compiler-tests/src/test/data/box/dependencygraph/extensions/ChildProvidesSupersedeScopeSameTypedParentProvidesInMultibinding.kt");
       }
 
       @Test
@@ -1260,6 +1356,12 @@ public class BoxTestGenerated extends AbstractBoxTest {
       public void testRequiredAnnotationWorksWhenPresent() {
         runTest("compiler-tests/src/test/data/box/dependencygraph/optional/RequiredAnnotationWorksWhenPresent.kt");
       }
+
+      @Test
+      @TestMetadata("ScopedDefaultInSeparateCompilation.kt")
+      public void testScopedDefaultInSeparateCompilation() {
+        runTest("compiler-tests/src/test/data/box/dependencygraph/optional/ScopedDefaultInSeparateCompilation.kt");
+      }
     }
 
     @Nested
@@ -1312,6 +1414,36 @@ public class BoxTestGenerated extends AbstractBoxTest {
       }
 
       @Test
+      @TestMetadata("ChunkedMapFactoryMultibinding.kt")
+      public void testChunkedMapFactoryMultibinding() {
+        runTest("compiler-tests/src/test/data/box/dependencygraph/sharding/ChunkedMapFactoryMultibinding.kt");
+      }
+
+      @Test
+      @TestMetadata("ChunkedMapMultibinding.kt")
+      public void testChunkedMapMultibinding() {
+        runTest("compiler-tests/src/test/data/box/dependencygraph/sharding/ChunkedMapMultibinding.kt");
+      }
+
+      @Test
+      @TestMetadata("ChunkedMultibindingWithSharding.kt")
+      public void testChunkedMultibindingWithSharding() {
+        runTest("compiler-tests/src/test/data/box/dependencygraph/sharding/ChunkedMultibindingWithSharding.kt");
+      }
+
+      @Test
+      @TestMetadata("ChunkedSetFactoryMultibinding.kt")
+      public void testChunkedSetFactoryMultibinding() {
+        runTest("compiler-tests/src/test/data/box/dependencygraph/sharding/ChunkedSetFactoryMultibinding.kt");
+      }
+
+      @Test
+      @TestMetadata("ChunkedSetMultibinding.kt")
+      public void testChunkedSetMultibinding() {
+        runTest("compiler-tests/src/test/data/box/dependencygraph/sharding/ChunkedSetMultibinding.kt");
+      }
+
+      @Test
       @TestMetadata("CrossShardDependencies.kt")
       public void testCrossShardDependencies() {
         runTest("compiler-tests/src/test/data/box/dependencygraph/sharding/CrossShardDependencies.kt");
@@ -1357,6 +1489,12 @@ public class BoxTestGenerated extends AbstractBoxTest {
       @TestMetadata("ShardingWithCycle.kt")
       public void testShardingWithCycle() {
         runTest("compiler-tests/src/test/data/box/dependencygraph/sharding/ShardingWithCycle.kt");
+      }
+
+      @Test
+      @TestMetadata("ShardingWithIncludes.kt")
+      public void testShardingWithIncludes() {
+        runTest("compiler-tests/src/test/data/box/dependencygraph/sharding/ShardingWithIncludes.kt");
       }
 
       @Test
@@ -1434,6 +1572,12 @@ public class BoxTestGenerated extends AbstractBoxTest {
     @TestMetadata("ReusedMultiInjectRespectsProviderCalls.kt")
     public void testReusedMultiInjectRespectsProviderCalls() {
       runTest("compiler-tests/src/test/data/box/inject/ReusedMultiInjectRespectsProviderCalls.kt");
+    }
+
+    @Test
+    @TestMetadata("TopLevelInjectedFunctionSharesNameWithPrivateOverload.kt")
+    public void testTopLevelInjectedFunctionSharesNameWithPrivateOverload() {
+      runTest("compiler-tests/src/test/data/box/inject/TopLevelInjectedFunctionSharesNameWithPrivateOverload.kt");
     }
 
     @Nested
@@ -1563,6 +1707,12 @@ public class BoxTestGenerated extends AbstractBoxTest {
       @TestMetadata("NoAssistedArgsInAssistedInject.kt")
       public void testNoAssistedArgsInAssistedInject() {
         runTest("compiler-tests/src/test/data/box/inject/assisted/NoAssistedArgsInAssistedInject.kt");
+      }
+
+      @Test
+      @TestMetadata("PreserveNullabilityForGenericsLayering.kt")
+      public void testPreserveNullabilityForGenericsLayering() {
+        runTest("compiler-tests/src/test/data/box/inject/assisted/PreserveNullabilityForGenericsLayering.kt");
       }
 
       @Test
@@ -1719,6 +1869,12 @@ public class BoxTestGenerated extends AbstractBoxTest {
       @TestMetadata("AssistedDaggerFactoryClassWithDifferentInputs.kt")
       public void testAssistedDaggerFactoryClassWithDifferentInputs() {
         runTest("compiler-tests/src/test/data/box/interop/dagger/AssistedDaggerFactoryClassWithDifferentInputs.kt");
+      }
+
+      @Test
+      @TestMetadata("AssistedDaggerLazyParameterInteropRegression.kt")
+      public void testAssistedDaggerLazyParameterInteropRegression() {
+        runTest("compiler-tests/src/test/data/box/interop/dagger/AssistedDaggerLazyParameterInteropRegression.kt");
       }
 
       @Test
@@ -1995,6 +2151,12 @@ public class BoxTestGenerated extends AbstractBoxTest {
         }
 
         @Test
+        @TestMetadata("DuplicateMultibindingSourcesFromSharedIncludedModule.kt")
+        public void testDuplicateMultibindingSourcesFromSharedIncludedModule() {
+          runTest("compiler-tests/src/test/data/box/interop/dagger/anvil/DuplicateMultibindingSourcesFromSharedIncludedModule.kt");
+        }
+
+        @Test
         @TestMetadata("InheritedBindingsDoNotCauseDuplicates.kt")
         public void testInheritedBindingsDoNotCauseDuplicates() {
           runTest("compiler-tests/src/test/data/box/interop/dagger/anvil/InheritedBindingsDoNotCauseDuplicates.kt");
@@ -2033,6 +2195,46 @@ public class BoxTestGenerated extends AbstractBoxTest {
       @TestMetadata("InjectedKotlinLazyFromGuiceProviderWorks.kt")
       public void testInjectedKotlinLazyFromGuiceProviderWorks() {
         runTest("compiler-tests/src/test/data/box/interop/guice/InjectedKotlinLazyFromGuiceProviderWorks.kt");
+      }
+    }
+
+    @Nested
+    @TestMetadata("compiler-tests/src/test/data/box/interop/kclass")
+    @TestDataPath("$PROJECT_ROOT")
+    public class Kclass {
+      @Test
+      public void testAllFilesPresentInKclass() {
+        KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler-tests/src/test/data/box/interop/kclass"), Pattern.compile("^(.+)\\.kt$"), null, true);
+      }
+
+      @Test
+      @TestMetadata("ClassMapKeyInjectConstructorInterop.kt")
+      public void testClassMapKeyInjectConstructorInterop() {
+        runTest("compiler-tests/src/test/data/box/interop/kclass/ClassMapKeyInjectConstructorInterop.kt");
+      }
+
+      @Test
+      @TestMetadata("ClassMapKeyInterop.kt")
+      public void testClassMapKeyInterop() {
+        runTest("compiler-tests/src/test/data/box/interop/kclass/ClassMapKeyInterop.kt");
+      }
+
+      @Test
+      @TestMetadata("ClassMapKeyProviderInterop.kt")
+      public void testClassMapKeyProviderInterop() {
+        runTest("compiler-tests/src/test/data/box/interop/kclass/ClassMapKeyProviderInterop.kt");
+      }
+
+      @Test
+      @TestMetadata("KClassMapKeyInterop.kt")
+      public void testKClassMapKeyInterop() {
+        runTest("compiler-tests/src/test/data/box/interop/kclass/KClassMapKeyInterop.kt");
+      }
+
+      @Test
+      @TestMetadata("MixedClassKClassMapKeyInterop.kt")
+      public void testMixedClassKClassMapKeyInterop() {
+        runTest("compiler-tests/src/test/data/box/interop/kclass/MixedClassKClassMapKeyInterop.kt");
       }
     }
   }
@@ -2150,6 +2352,12 @@ public class BoxTestGenerated extends AbstractBoxTest {
     @TestMetadata("EmptyMapLazyTypes.kt")
     public void testEmptyMapLazyTypes() {
       runTest("compiler-tests/src/test/data/box/multibindings/EmptyMapLazyTypes.kt");
+    }
+
+    @Test
+    @TestMetadata("ImplicitClassKeyMapBinding.kt")
+    public void testImplicitClassKeyMapBinding() {
+      runTest("compiler-tests/src/test/data/box/multibindings/ImplicitClassKeyMapBinding.kt");
     }
 
     @Test

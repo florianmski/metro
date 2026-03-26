@@ -9,6 +9,7 @@ import dev.zacsweers.metro.compiler.expectAs
 import dev.zacsweers.metro.compiler.expectAsOrNull
 import dev.zacsweers.metro.compiler.fir.MetroDiagnostics
 import dev.zacsweers.metro.compiler.ir.IrBindingContainerResolver
+import dev.zacsweers.metro.compiler.ir.IrBoundTypeResolver
 import dev.zacsweers.metro.compiler.ir.IrContextualTypeKey
 import dev.zacsweers.metro.compiler.ir.IrContributionData
 import dev.zacsweers.metro.compiler.ir.IrContributionMerger
@@ -25,6 +26,7 @@ import dev.zacsweers.metro.compiler.ir.finalizeFakeOverride
 import dev.zacsweers.metro.compiler.ir.graph.BindingGraphGenerator
 import dev.zacsweers.metro.compiler.ir.graph.BindingLookupCache
 import dev.zacsweers.metro.compiler.ir.graph.BindingPropertyContext
+import dev.zacsweers.metro.compiler.ir.graph.ChildGraphScopeInfo
 import dev.zacsweers.metro.compiler.ir.graph.GraphNode
 import dev.zacsweers.metro.compiler.ir.graph.GraphNodes
 import dev.zacsweers.metro.compiler.ir.graph.IrBinding
@@ -109,12 +111,13 @@ internal class DependencyGraphTransformer(
   private val forkJoinPool: ForkJoinPool?,
   private val metroDeclarations: MetroDeclarations,
   private val bindingContainerResolver: IrBindingContainerResolver,
+  private val boundTypeResolver: IrBoundTypeResolver,
 ) : IrMetroContext by context, TraceScope by traceScope {
 
   private val bindingLookupCache = BindingLookupCache()
 
   private val contributionMerger: IrContributionMerger =
-    IrContributionMerger(this, contributionData)
+    IrContributionMerger(this, contributionData, boundTypeResolver)
 
   private val graphNodes =
     GraphNodes(this, metroDeclarations, bindingContainerResolver, contributionMerger)
@@ -237,6 +240,7 @@ internal class DependencyGraphTransformer(
             contributionData,
             parentContextReader,
             bindingLookupCache,
+            boundTypeResolver,
           )
           .generate()
       }
@@ -468,15 +472,25 @@ internal class DependencyGraphTransformer(
             irDeclarations = sequenceOf(sourceDeclaration, dependencyGraphDeclaration),
             factory = MetroDiagnostics.PRIVATE_BINDING_ERROR,
             a =
-              "Cannot expose @GraphPrivate binding '${accessor.contextKey.typeKey.render(short = false)}' as a graph accessor. @GraphPrivate bindings are confined to the graph they are provided in.",
+              "Cannot expose @GraphPrivate binding '${accessor.contextKey.typeKey.renderForDiagnostic(short = false)}' as a graph accessor. @GraphPrivate bindings are confined to the graph they are provided in.",
           )
           hasErrors = true
         }
       }
     }
 
+    val childGraphScopes =
+      childValidationResults
+        .filter { !it.hasErrors }
+        .map { child ->
+          ChildGraphScopeInfo(
+            reachableKeys = child.sealResult.reachableKeys,
+            scopeNames = child.node.aggregationScopes,
+          )
+        }
+
     val sealResult =
-      bindingGraph.seal { errors ->
+      bindingGraph.seal(childGraphScopes) { errors ->
         for ((declaration, message) in errors) {
           reportCompat(
             irDeclarations = sequenceOf(declaration, dependencyGraphDeclaration),

@@ -80,6 +80,7 @@ internal class Symbols(
     const val IMPL = "Impl"
     const val INVOKE = "invoke"
     const val METRO_CONTRIBUTION = "MetroContribution"
+    const val MULTIBINDING = "multibinding"
     const val METRO_CONTRIBUTION_NAME_PREFIX = "MetroContribution"
     const val METRO_FACTORY = "MetroFactory"
     const val METRO_HINTS_PACKAGE = "metro.hints"
@@ -137,6 +138,7 @@ internal class Symbols(
       ClassId(FqNames.metroRuntimeInternalPackage, "GraphFactoryInvokeFunctionMarker".asName())
     val HasMemberInjections = ClassId(FqNames.metroRuntimePackage, "HasMemberInjections".asName())
     val JavaOptional = ClassId(FqNames.javaUtil, Names.Optional)
+    val JavaLangClass = ClassId(FqName("java.lang"), "Class".asName())
     val JvmField = ClassId(FqName("kotlin.jvm"), "JvmField".asName())
     val Lazy = StandardClassIds.byName("Lazy")
     val MembersInjector = ClassId(FqNames.metroRuntimePackage, Names.membersInjector)
@@ -183,6 +185,8 @@ internal class Symbols(
     val Assisted = StringNames.ASSISTED.asName()
     val Binds = "Binds".asName()
     val BindsMirrorClass = "BindsMirror".asName()
+    val DefaultBinding = "DefaultBinding".asName()
+    val DefaultBindingMirrorClass = "DefaultBindingMirror".asName()
     val Container = "Container".asName()
     val FactoryClass = "Factory".asName()
     val MetroContributionNamePrefix = StringNames.METRO_CONTRIBUTION_NAME_PREFIX.asName()
@@ -205,6 +209,7 @@ internal class Symbols(
     val createGraphFactory = StringNames.CREATE_GRAPH_FACTORY.asName()
     val createDynamicGraph = StringNames.CREATE_DYNAMIC_GRAPH.asName()
     val createDynamicGraphFactory = StringNames.CREATE_DYNAMIC_GRAPH_FACTORY.asName()
+    val defaultBindingFunction = "defaultBinding".asName()
     val delegateFactory = "delegateFactory".asName()
     val error = StringNames.ERROR.asName()
     val exclude = StringNames.EXCLUDE.asName()
@@ -218,6 +223,7 @@ internal class Symbols(
     val invoke = StringNames.INVOKE.asName()
     val membersInjector = "MembersInjector".asName()
     val mirrorFunction = StringNames.MIRROR_FUNCTION.asName()
+    val multibinding = StringNames.MULTIBINDING.asName()
     val modules = "modules".asName()
     val newInstance = StringNames.NEW_INSTANCE.asName()
     val provider = StringNames.PROVIDER.asName()
@@ -227,6 +233,7 @@ internal class Symbols(
     val subcomponents = "subcomponents".asName()
     val scope = StringNames.SCOPE.asName()
     val unwrapValue = "unwrapValue".asName()
+    val implicitClassKey = "implicitClassKey".asName()
   }
 
   private val metroRuntime: IrPackageFragment by lazy {
@@ -240,6 +247,38 @@ internal class Symbols(
   }
   private val stdlibCollections: IrPackageFragment by lazy {
     moduleFragment.createPackage(kotlinCollectionsPackageFqn.asString())
+  }
+
+  /** Getter for the `kotlin.jvm.java` extension property on `KClass<T>` -> `Class<T>`. */
+  val kClassJavaPropertyGetter: IrSimpleFunctionSymbol? by lazy {
+    pluginContext
+      .referenceProperties(CallableId(FqName("kotlin.jvm"), "java".asName()))
+      .firstOrNull()
+      ?.owner
+      ?.getter
+      ?.symbol
+  }
+
+  val mapEntryClassSymbol: IrClassSymbol by lazy {
+    pluginContext.referenceClass(StandardClassIds.MapEntry)!!
+  }
+
+  /** `kotlin.collections.mapKeys` extension function for Map. */
+  val mapKeysFunction: IrSimpleFunctionSymbol by lazy {
+    pluginContext
+      .referenceFunctions(CallableId(kotlinCollectionsPackageFqn, "mapKeys".asName()))
+      .first()
+  }
+
+  /** Getter for the `key` property on `Map.Entry`. */
+  val mapEntryKeyGetter: IrSimpleFunctionSymbol by lazy {
+    val mapEntryClassId = StandardClassIds.Map.createNestedClassId("Entry".asName())
+    pluginContext
+      .referenceProperties(CallableId(mapEntryClassId, "key".asName()))
+      .first()
+      .owner
+      .getter!!
+      .symbol
   }
 
   val metroFrameworkSymbols = MetroFrameworkSymbols(metroRuntimeInternal, pluginContext)

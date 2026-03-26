@@ -23,6 +23,7 @@ import dev.zacsweers.metro.compiler.ir.doubleCheck
 import dev.zacsweers.metro.compiler.ir.finalizeFakeOverride
 import dev.zacsweers.metro.compiler.ir.graph.expressions.BindingExpressionGenerator
 import dev.zacsweers.metro.compiler.ir.graph.expressions.GraphExpressionGenerator
+import dev.zacsweers.metro.compiler.ir.graph.expressions.MultibindingChunkingContext
 import dev.zacsweers.metro.compiler.ir.graph.sharding.IrGraphShardGenerator
 import dev.zacsweers.metro.compiler.ir.graph.sharding.Shard
 import dev.zacsweers.metro.compiler.ir.graph.sharding.ShardBinding
@@ -311,7 +312,17 @@ internal class IrGraphGenerator(
       if (!graphClass.origin.isSyntheticGeneratedGraph) {
         trace("Generate Metro metadata") {
           // Finally, generate metadata
-          val graphProto = node.toProto(bindingGraph = bindingGraph)
+          // Use only the graph's own provider factories (not those from binding containers)
+          // for metadata. Binding container factories are resolved independently by consumers.
+          val ownProviderFactories =
+            metroDeclarations
+              .findBindingContainer(node.sourceGraph)
+              ?.providerFactories
+              ?.values
+              .orEmpty()
+              .toSet()
+          val graphProto =
+            node.toProto(bindingGraph = bindingGraph, ownProviderFactories = ownProviderFactories)
           graphMetadataReporter.write(node, bindingGraph)
           val metroMetadata = createMetroMetadata(dependency_graph = graphProto)
 
@@ -915,6 +926,24 @@ internal class IrGraphGenerator(
         null
       }
 
+    // Create name allocator for functions on this shard (shared by init chunking and multibinding
+    // chunking)
+    val shardFunctionNameAllocator =
+      if (shard.isGraphAsShard) {
+        functionNameAllocator
+      } else {
+        NameAllocator(mode = NameAllocator.Mode.COUNT)
+      }
+
+    // Create multibinding chunking context
+    val multibindingChunkingContext =
+      MultibindingChunkingContext(
+        targetClass = shard.shardClass,
+        functionNameAllocator = shardFunctionNameAllocator,
+        shardExprContext = shardExprContext,
+        expressionGeneratorFactory = expressionGeneratorFactory,
+      )
+
     // Collect property initializers for this shard
     val shardPropertyInitializers = mutableListOf<Pair<IrProperty, PropertyInitializer>>()
     val shardPropertiesToTypeKeys = mutableMapOf<IrProperty, IrTypeKey>()
@@ -924,6 +953,7 @@ internal class IrGraphGenerator(
       shard = shard,
       shardExprContext = shardExprContext,
       expressionGeneratorFactory = expressionGeneratorFactory,
+      multibindingChunkingContext = multibindingChunkingContext,
       shardPropertyInitializers = shardPropertyInitializers,
       shardPropertiesToTypeKeys = shardPropertiesToTypeKeys,
       shardDeferredProperties = shardDeferredProperties,
@@ -936,6 +966,7 @@ internal class IrGraphGenerator(
         shard = shard,
         shardExprContext = shardExprContext,
         expressionGeneratorFactory = expressionGeneratorFactory,
+        shardFunctionNameAllocator = shardFunctionNameAllocator,
         shardPropertyInitializers = shardPropertyInitializers,
         shardPropertiesToTypeKeys = shardPropertiesToTypeKeys,
         shardDeferredProperties = shardDeferredProperties,
@@ -947,7 +978,12 @@ internal class IrGraphGenerator(
       // For nested shards, we must always generate the constructor body even if there are no
       // field-backed property initializers (e.g., all getter-based properties), since the
       // constructor needs the delegating call to Any and graph field initialization.
-      shard.shardClass.buildShardConstructor()
+      shard.shardClass.buildShardConstructor {
+        val targetThisReceiver = shard.shardClass.thisReceiverOrFail
+        shard.graphProperty?.backingField?.let { graphBackingField ->
+          +irSetField(irGet(targetThisReceiver), graphBackingField, irGet(shard.graphParam!!))
+        }
+      }
     }
 
     // For graph-as-shard, add deferred setDelegate calls after property inits
@@ -966,6 +1002,7 @@ internal class IrGraphGenerator(
     shard: Shard,
     shardExprContext: ShardExpressionContext?,
     expressionGeneratorFactory: GraphExpressionGenerator.Factory,
+    multibindingChunkingContext: MultibindingChunkingContext,
     shardPropertyInitializers: MutableList<Pair<IrProperty, PropertyInitializer>>,
     shardPropertiesToTypeKeys: MutableMap<IrProperty, IrTypeKey>,
     shardDeferredProperties: MutableList<DeferredPropertyInfo>,
@@ -999,14 +1036,20 @@ internal class IrGraphGenerator(
 
       val property = propertyInfo.property
 
-      // Handle getter properties directly (no chunking needed)
+      // Handle getter properties directly (no init chunking needed, but multibinding chunking
+      // applies)
       if (property.backingField == null) {
         property.getter!!.apply {
           body =
             createIrBuilder(symbol).run {
+              val generator =
+                expressionGeneratorFactory.create(
+                  dispatchReceiverParameter!!,
+                  shardContext = shardExprContext,
+                )
+              generator.multibindingChunkingContext = multibindingChunkingContext
               val initExpr =
-                expressionGeneratorFactory
-                  .create(dispatchReceiverParameter!!, shardContext = shardExprContext)
+                generator
                   .generateBindingCode(
                     binding = binding,
                     contextualTypeKey = contextKey,
@@ -1052,8 +1095,10 @@ internal class IrGraphGenerator(
             }
           } else {
             { thisReceiver: IrValueParameter, fieldInitKey: IrTypeKey ->
-              expressionGeneratorFactory
-                .create(thisReceiver, shardContext = shardExprContext)
+              val generator =
+                expressionGeneratorFactory.create(thisReceiver, shardContext = shardExprContext)
+              generator.multibindingChunkingContext = multibindingChunkingContext
+              generator
                 .generateBindingCode(
                   binding,
                   contextualTypeKey = contextKey,
@@ -1074,6 +1119,7 @@ internal class IrGraphGenerator(
     shard: Shard,
     shardExprContext: ShardExpressionContext?,
     expressionGeneratorFactory: GraphExpressionGenerator.Factory,
+    shardFunctionNameAllocator: NameAllocator,
     shardPropertyInitializers: List<Pair<IrProperty, PropertyInitializer>>,
     shardPropertiesToTypeKeys: Map<IrProperty, IrTypeKey>,
     shardDeferredProperties: List<DeferredPropertyInfo>,
@@ -1083,14 +1129,6 @@ internal class IrGraphGenerator(
   ) {
     val mustChunkInits =
       options.chunkFieldInits && shardPropertyInitializers.size > options.statementsPerInitFun
-
-    // Create name allocator for init functions on this shard
-    val shardFunctionNameAllocator =
-      if (shard.isGraphAsShard) {
-        functionNameAllocator
-      } else {
-        NameAllocator(mode = NameAllocator.Mode.COUNT)
-      }
 
     // Helper to generate setDelegate calls for deferred properties in this shard
     fun IrBuilderWithScope.generateDeferredSetDelegateCalls(
@@ -1170,21 +1208,20 @@ internal class IrGraphGenerator(
 
     val targetThisReceiver = shard.shardClass.thisReceiverOrFail
 
-    val initFunctionsToCall =
-      chunks.map { statementsChunk ->
-        val initName = shardFunctionNameAllocator.newName("init")
-        shard.shardClass
-          .addFunction(initName, irBuiltIns.unitType, visibility = DescriptorVisibilities.PRIVATE)
-          .apply {
-            val localReceiver = targetThisReceiver.copyTo(this)
-            setDispatchReceiver(localReceiver)
-            buildBlockBody {
-              for (statement in statementsChunk) {
-                +statement(localReceiver)
-              }
+    val initFunctionsToCall = chunks.map { statementsChunk ->
+      val initName = shardFunctionNameAllocator.newName("init")
+      shard.shardClass
+        .addFunction(initName, irBuiltIns.unitType, visibility = DescriptorVisibilities.PRIVATE)
+        .apply {
+          val localReceiver = targetThisReceiver.copyTo(this)
+          setDispatchReceiver(localReceiver)
+          buildBlockBody {
+            for (statement in statementsChunk) {
+              +statement(localReceiver)
             }
           }
-      }
+        }
+    }
 
     if (shard.isGraphAsShard) {
       // For graph-as-shard, add init calls to main constructor

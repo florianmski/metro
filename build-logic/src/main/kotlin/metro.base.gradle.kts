@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 import com.vanniktech.maven.publish.DeploymentValidation
 import com.vanniktech.maven.publish.MavenPublishBaseExtension
-import kotlin.collections.addAll
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.jvm.toolchain.JavaLanguageVersion
+import org.gradle.kotlin.dsl.withType
 import org.jetbrains.dokka.gradle.DokkaExtension
 import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
 import org.jetbrains.kotlin.gradle.dsl.JvmDefaultMode
@@ -12,6 +12,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompilerOptions
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.plugin.KotlinBasePlugin
+import org.jetbrains.kotlin.gradle.targets.js.testing.KotlinJsTest
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 
 val catalog = rootProject.extensions.getByType<VersionCatalogsExtension>().named("libs")
@@ -40,13 +41,21 @@ pluginManager.withPlugin("java") {
   }
 }
 
-// Suppress native access warnings in forked JVMs (Java 22+)
+// Suppress native access warnings and ReservedStackAccess warnings in forked JVMs
 tasks.withType<Test>().configureEach {
-  jvmArgs("--enable-native-access=ALL-UNNAMED", "--sun-misc-unsafe-memory-access=allow")
+  jvmArgs(
+    "--enable-native-access=ALL-UNNAMED",
+    "--sun-misc-unsafe-memory-access=allow",
+    "-XX:StackReservedPages=0",
+  )
 }
 
 tasks.withType<JavaExec>().configureEach {
-  jvmArgs("--enable-native-access=ALL-UNNAMED", "--sun-misc-unsafe-memory-access=allow")
+  jvmArgs(
+    "--enable-native-access=ALL-UNNAMED",
+    "--sun-misc-unsafe-memory-access=allow",
+    "-XX:StackReservedPages=0",
+  )
 }
 
 // Kotlin configuration
@@ -65,25 +74,30 @@ plugins.withType<KotlinBasePlugin> {
             "-Xcontext-parameters",
             "-Xreturn-value-checker=full",
             "-Xcontext-sensitive-resolution",
-            "-Xdata-flow-based-exhaustiveness",
+            "-Xwhen-expressions=indy",
             //  "-Xallow-contracts-on-more-functions",
             //  "-Xallow-condition-implies-returns-contracts",
             //  "-Xallow-holdsin-contract",
-            // TODO next minor release
-            //  "-Xwhen-expressions=indy",
             // TODO Kotlin 2.3.0
             //  "-Xexplicit-backing-fields",
           )
-          if (project.name != "compiler-tests") {
-            optIn.addAll(
-              "kotlin.contracts.ExperimentalContracts",
-              "kotlin.contracts.ExperimentalExtendedContracts",
-              "org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi",
-              "org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI",
-            )
-          }
+          optIn.addAll(
+            "kotlin.contracts.ExperimentalContracts",
+            "kotlin.contracts.ExperimentalExtendedContracts",
+            "org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi",
+            "org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI",
+          )
         }
       }
+    }
+  }
+}
+
+pluginManager.withPlugin("org.jetbrains.kotlin.multiplatform") {
+  // Suppress "WASI is an experimental feature" Node.js warnings
+  tasks.withType<KotlinJsTest>().configureEach {
+    if (name.contains("wasmWasi", ignoreCase = true)) {
+      nodeJsArgs += "--no-warnings"
     }
   }
 }
@@ -103,7 +117,7 @@ pluginManager.withPlugin("metro.publish") {
 
   if (isNotCompiler) {
     val metroRuntimeLanguageVersion =
-      catalog.findVersion("metro-runtime-languageVersion").get().requiredVersion
+      catalog.findVersion("kotlinPublished").get().requiredVersion.take(3) // Take 2.2 out of 2.2.20
     val runtimeKotlinVersion = KotlinVersion.fromVersion(metroRuntimeLanguageVersion)
     metroExtension.languageVersion.convention(runtimeKotlinVersion)
     metroExtension.apiVersion.convention(runtimeKotlinVersion)

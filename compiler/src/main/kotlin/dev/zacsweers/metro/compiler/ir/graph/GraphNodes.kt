@@ -502,7 +502,7 @@ internal class GraphNodes(
         // metadata anyway
         graphDeclaration.annotations += inheritedScopes
       } else {
-        pluginContext.metadataDeclarationRegistrar.addMetadataVisibleAnnotationsToElement(
+        metadataDeclarationRegistrarCompat.addMetadataVisibleAnnotationsToElement(
           graphDeclaration,
           inheritedScopes,
         )
@@ -1056,8 +1056,9 @@ internal class GraphNodes(
       }
 
       // Resolve transitive binding containers
-      val unresolvedRoots =
-        bindingContainers.mapNotNullToSet { if (it in resolvedBindingContainers) null else it.ir }
+      val unresolvedRoots = bindingContainers.mapNotNullToSet {
+        if (it in resolvedBindingContainers) null else it.ir
+      }
       val newlyResolved = bindingContainerResolver.resolve(unresolvedRoots)
       val allMergedContainers = resolvedBindingContainers + newlyResolved
 

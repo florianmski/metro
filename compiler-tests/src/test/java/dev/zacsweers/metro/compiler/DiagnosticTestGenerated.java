@@ -43,6 +43,24 @@ public class DiagnosticTestGenerated extends AbstractDiagnosticTest {
     }
 
     @Test
+    @TestMetadata("DefaultBinding_Ambiguous.kt")
+    public void testDefaultBinding_Ambiguous() {
+      runTest("compiler-tests/src/test/data/diagnostic/aggregation/DefaultBinding_Ambiguous.kt");
+    }
+
+    @Test
+    @TestMetadata("DefaultBinding_InvalidTypeArg.kt")
+    public void testDefaultBinding_InvalidTypeArg() {
+      runTest("compiler-tests/src/test/data/diagnostic/aggregation/DefaultBinding_InvalidTypeArg.kt");
+    }
+
+    @Test
+    @TestMetadata("DefaultBinding_MustBeSubclassable.kt")
+    public void testDefaultBinding_MustBeSubclassable() {
+      runTest("compiler-tests/src/test/data/diagnostic/aggregation/DefaultBinding_MustBeSubclassable.kt");
+    }
+
+    @Test
     @TestMetadata("InternalContributionMissingHint.kt")
     public void testInternalContributionMissingHint() {
       runTest("compiler-tests/src/test/data/diagnostic/aggregation/InternalContributionMissingHint.kt");
@@ -384,6 +402,12 @@ public class DiagnosticTestGenerated extends AbstractDiagnosticTest {
     @TestMetadata("compiler-tests/src/test/data/diagnostic/dependencygraph/extensions")
     @TestDataPath("$PROJECT_ROOT")
     public class Extensions {
+      @Test
+      @TestMetadata("AdhocGraphExtensionFactoriesAreNotSupported.kt")
+      public void testAdhocGraphExtensionFactoriesAreNotSupported() {
+        runTest("compiler-tests/src/test/data/diagnostic/dependencygraph/extensions/AdhocGraphExtensionFactoriesAreNotSupported.kt");
+      }
+
       @Test
       public void testAllFilesPresentInExtensions() {
         KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler-tests/src/test/data/diagnostic/dependencygraph/extensions"), Pattern.compile("^(.+)\\.kt$"), null, true);
@@ -901,6 +925,12 @@ public class DiagnosticTestGenerated extends AbstractDiagnosticTest {
     }
 
     @Test
+    @TestMetadata("DaggerLazyClassKeyIsUnsupported.kt")
+    public void testDaggerLazyClassKeyIsUnsupported() {
+      runTest("compiler-tests/src/test/data/diagnostic/multibindings/DaggerLazyClassKeyIsUnsupported.kt");
+    }
+
+    @Test
     @TestMetadata("DuplicateMapKeys.kt")
     public void testDuplicateMapKeys() {
       runTest("compiler-tests/src/test/data/diagnostic/multibindings/DuplicateMapKeys.kt");
@@ -913,6 +943,12 @@ public class DiagnosticTestGenerated extends AbstractDiagnosticTest {
     }
 
     @Test
+    @TestMetadata("ImplicitClassKeyDiagnostics.kt")
+    public void testImplicitClassKeyDiagnostics() {
+      runTest("compiler-tests/src/test/data/diagnostic/multibindings/ImplicitClassKeyDiagnostics.kt");
+    }
+
+    @Test
     @TestMetadata("IncompatibleMapValueType.kt")
     public void testIncompatibleMapValueType() {
       runTest("compiler-tests/src/test/data/diagnostic/multibindings/IncompatibleMapValueType.kt");
@@ -922,6 +958,24 @@ public class DiagnosticTestGenerated extends AbstractDiagnosticTest {
     @TestMetadata("MapKeyDiagnostics.kt")
     public void testMapKeyDiagnostics() {
       runTest("compiler-tests/src/test/data/diagnostic/multibindings/MapKeyDiagnostics.kt");
+    }
+
+    @Test
+    @TestMetadata("SuspiciousUnusedMultibinding.kt")
+    public void testSuspiciousUnusedMultibinding() {
+      runTest("compiler-tests/src/test/data/diagnostic/multibindings/SuspiciousUnusedMultibinding.kt");
+    }
+
+    @Test
+    @TestMetadata("SuspiciousUnusedMultibindingInChildScope.kt")
+    public void testSuspiciousUnusedMultibindingInChildScope() {
+      runTest("compiler-tests/src/test/data/diagnostic/multibindings/SuspiciousUnusedMultibindingInChildScope.kt");
+    }
+
+    @Test
+    @TestMetadata("SuspiciousUnusedMultibindingSet.kt")
+    public void testSuspiciousUnusedMultibindingSet() {
+      runTest("compiler-tests/src/test/data/diagnostic/multibindings/SuspiciousUnusedMultibindingSet.kt");
     }
   }
 

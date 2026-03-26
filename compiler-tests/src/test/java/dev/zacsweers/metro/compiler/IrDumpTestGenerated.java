@@ -67,6 +67,18 @@ public class IrDumpTestGenerated extends AbstractIrDumpTest {
     }
 
     @Test
+    @TestMetadata("DefaultBindingMirror.kt")
+    public void testDefaultBindingMirror() {
+      runTest("compiler-tests/src/test/data/dump/ir/aggregation/DefaultBindingMirror.kt");
+    }
+
+    @Test
+    @TestMetadata("ImplicitClassKeyPopulatedOnCopy.kt")
+    public void testImplicitClassKeyPopulatedOnCopy() {
+      runTest("compiler-tests/src/test/data/dump/ir/aggregation/ImplicitClassKeyPopulatedOnCopy.kt");
+    }
+
+    @Test
     @TestMetadata("MultipleContributionsOnlyProduceOneHintFile.kt")
     public void testMultipleContributionsOnlyProduceOneHintFile() {
       runTest("compiler-tests/src/test/data/dump/ir/aggregation/MultipleContributionsOnlyProduceOneHintFile.kt");
@@ -275,6 +287,24 @@ public class IrDumpTestGenerated extends AbstractIrDumpTest {
       @Test
       public void testAllFilesPresentInSharding() {
         KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler-tests/src/test/data/dump/ir/dependencygraph/sharding"), Pattern.compile("^(.+)\\.kt$"), null, true);
+      }
+
+      @Test
+      @TestMetadata("ChunkedMapMultibinding.kt")
+      public void testChunkedMapMultibinding() {
+        runTest("compiler-tests/src/test/data/dump/ir/dependencygraph/sharding/ChunkedMapMultibinding.kt");
+      }
+
+      @Test
+      @TestMetadata("ChunkedMultibindingWithSharding.kt")
+      public void testChunkedMultibindingWithSharding() {
+        runTest("compiler-tests/src/test/data/dump/ir/dependencygraph/sharding/ChunkedMultibindingWithSharding.kt");
+      }
+
+      @Test
+      @TestMetadata("ChunkedSetMultibinding.kt")
+      public void testChunkedSetMultibinding() {
+        runTest("compiler-tests/src/test/data/dump/ir/dependencygraph/sharding/ChunkedSetMultibinding.kt");
       }
 
       @Test

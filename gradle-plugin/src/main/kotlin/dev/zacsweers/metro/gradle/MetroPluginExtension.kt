@@ -203,6 +203,14 @@ constructor(
   public val keysPerGraphShard: Property<Int> = objects.intProperty("metro.keysPerGraphShard", 2000)
 
   /**
+   * Maximum number of statements per multibinding helper method. Multibindings with more
+   * contributors than this threshold will have their builder calls split across multiple private
+   * helper methods. Default is 200, must be > 0.
+   */
+  public val statementsPerMultibindFun: Property<Int> =
+    objects.intProperty("metro.statementsPerMultibindFun", 200)
+
+  /**
    * Enables switching providers for deferred class loading. This reduces graph initialization time
    * by deferring bindings' class init until it's actually requested.
    *
@@ -391,16 +399,9 @@ constructor(
   public val useAssistedParamNamesAsIdentifiers: Property<Boolean> =
     objects.booleanProperty("metro.useAssistedParamNamesAsIdentifiers", true)
 
-  /**
-   * Controls the diagnostic severity when explicit `@Assisted("value")` identifiers are used on
-   * Metro's native `@Assisted` annotation _where the value differs from the parameter name_.
-   *
-   * This is an initial step toward deprecating explicit assisted identifiers in favor of parameter
-   * names. Only meaningful when [useAssistedParamNamesAsIdentifiers] is `true`.
-   *
-   * Set to [DiagnosticSeverity.WARN] by default. Eventually it will become a proper deprecation
-   * warning, then error, then removed.
-   */
+  @Deprecated(
+    "The `Assisted.value` property is now formally deprecated and this control no longer does anything."
+  )
   public val assistedIdentifierSeverity: Property<DiagnosticSeverity> =
     objects.enumProperty<DiagnosticSeverity>("assistedIdentifierSeverity", DiagnosticSeverity.WARN)
 
@@ -444,6 +445,21 @@ constructor(
   @ExperimentalMetroGradleApi
   public val enableFunctionProviders: Property<Boolean> =
     objects.booleanProperty("metro.enableFunctionProviders", false)
+
+  /**
+   * Enable/disable [kotlin.reflect.KClass]/[Class] interop for multibinding map keys. When enabled,
+   * `java.lang.Class` and `kotlin.reflect.KClass` are treated as interchangeable in map key types,
+   * matching Kotlin's own annotation compilation behavior. This only applies to map keys because
+   * these are the only scenario where annotation arguments are materialized into non-annotation
+   * code (i.e. `@ClassKey(Foo::class) -> Map<Class<*>, V>`).
+   *
+   * Disabled by default because this is purely for annotations interop and potentially comes at
+   * some runtime overhead cost to interop since `KClass` types are still used under the hood and
+   * must be mapped in some cases. It's recommended to migrate these to `KClass` and call `.java`
+   * where necessary if possible.
+   */
+  public val enableKClassToClassMapKeyInterop: Property<Boolean> =
+    objects.booleanProperty("metro.enableKClassToClassMapKeyInterop", false)
 
   /**
    * If set, the Metro compiler will dump verbose report diagnostics about resolved dependency

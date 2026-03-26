@@ -47,6 +47,7 @@ internal class BindsCallable(
    * @return A pair of (declaration, isContributed) or null if the function is null. If
    *   isContributed is true, the declaration is the source class that contributed this binding.
    */
+  // TODO also report target scopes?
   fun resolveSourceDeclaration(): Pair<IrDeclarationWithName, Boolean> {
     val ir = function
     val resolvedIr = ir.overriddenSymbolsSequence().lastOrNull()?.owner ?: ir
@@ -72,18 +73,28 @@ internal class BindsCallable(
   }
 
   /** Renders a [LocationDiagnostic] for this callable. */
-  fun renderLocationDiagnostic(short: Boolean, parameters: Parameters): LocationDiagnostic {
+  fun renderLocationDiagnostic(
+    short: Boolean,
+    shortLocation: Boolean,
+    parameters: Parameters,
+  ): LocationDiagnostic {
     val (sourceDeclaration, isContributed) = resolveSourceDeclaration()
 
     val location =
-      sourceDeclaration.renderSourceLocation(short = short)
+      sourceDeclaration.renderSourceLocation(short = shortLocation)
         ?: "<unknown location, likely a separate compilation>"
 
     val description = buildString {
       if (isContributed) {
         append((sourceDeclaration as IrDeclarationParent).kotlinFqName)
         append(" contributes a binding of ")
-        appendLineWithUnderlinedContent(typeKey.render(short = short, includeQualifier = true))
+        appendLineWithUnderlinedContent(
+          typeKey.renderForDiagnostic(
+            short = short,
+            includeQualifier = true,
+            useOriginalQualifier = true,
+          )
+        )
       } else {
         renderForDiagnostic(
           declaration = function,

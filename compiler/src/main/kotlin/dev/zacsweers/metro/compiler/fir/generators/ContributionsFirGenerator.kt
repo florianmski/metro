@@ -12,6 +12,7 @@ import dev.zacsweers.metro.compiler.fir.classIds
 import dev.zacsweers.metro.compiler.fir.hasOrigin
 import dev.zacsweers.metro.compiler.fir.isAnnotatedWithAny
 import dev.zacsweers.metro.compiler.fir.isBindingContainer
+import dev.zacsweers.metro.compiler.fir.isKiaIntoMultibinding
 import dev.zacsweers.metro.compiler.fir.isResolved
 import dev.zacsweers.metro.compiler.fir.mapKeyAnnotation
 import dev.zacsweers.metro.compiler.fir.markAsDeprecatedHidden
@@ -74,7 +75,7 @@ internal class ContributionsFirGenerator(session: FirSession, compatContext: Com
         // It'll try to use the fully name if possible, but because we really just need these to be
         // disambiguated we can just safely fall back to the short name in the worst case
         contributionAnnotations
-          .mapNotNull { it.scopeArgument() }
+          .mapNotNull { it.scopeArgument(session) }
           .distinctBy { it.scopeName(session) }
           .forEach { scopeArgument ->
             val nestedContributionName =
@@ -155,8 +156,14 @@ internal class ContributionsFirGenerator(session: FirSession, compatContext: Com
         }
         in contributesBindingAnnotations -> {
           contributions +=
-            Contribution.ContributesBinding(contributingSymbol, annotation) {
-              listOf(buildBindsAnnotation())
+            if (annotation.isKiaIntoMultibinding(session)) {
+              Contribution.ContributesIntoSetBinding(contributingSymbol, annotation) {
+                listOf(buildIntoSetAnnotation(), buildBindsAnnotation())
+              }
+            } else {
+              Contribution.ContributesBinding(contributingSymbol, annotation) {
+                listOf(buildBindsAnnotation())
+              }
             }
         }
         in contributesIntoSetAnnotations -> {
